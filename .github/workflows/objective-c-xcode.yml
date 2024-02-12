@@ -32,7 +32,6 @@ jobs:
         run: |
           xcodebuild -scheme "iAppConverter" \
           -archivePath $RUNNER_TEMP/iAppConverter.xcarchive \
-          -sdk macOS \
           -configuration Release \
           -destination generic/platform=macOS \
           clean archive          
