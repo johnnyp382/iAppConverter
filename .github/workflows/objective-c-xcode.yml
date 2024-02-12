@@ -28,7 +28,19 @@ jobs:
           if [ "`ls -A | grep -i \\.xcworkspace\$`" ]; then filetype_parameter="workspace" && file_to_build="`ls -A | grep -i \\.xcworkspace\$`"; else filetype_parameter="project" && file_to_build="`ls -A | grep -i \\.xcodeproj\$`"; fi
           file_to_build=`echo $file_to_build | awk '{$1=$1;print}'`
           xcodebuild clean build analyze -scheme "$scheme" -"$filetype_parameter" "$file_to_build" | xcpretty && exit ${PIPESTATUS[0]}
-      - name: Download a Build Artifact
-        uses: actions/download-artifact@v4.1.2
+      - name: Package Binary
+        run: cd dist; ditto -c -k --sequesterRsrc --keepParent iAppConverter.app ../iAppConverter-wxPython.app.zip
+      - name: Generate support package
+        run: packagesbuild ./payloads/InstallPackage/AutoPkg-Assets-Setup.pkgproj
+      - name: Prepare App for Upload
+        run: mv ./iAppConverter-wxPython.app.zip ./iAppConverter.app.zip
+      - name: Upload App to Artifacts
+        uses: actions/upload-artifact@v3
         with:
-          path: ${{ github.workspace }}
+          name: iAppConverter.app (GUI)
+          path: iAppConverter-GUI.app.zip
+      - name: Upload Package to Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: AutoPkg-Assets.pkg
+          path: ./dist/AutoPkg-Assets.pkg
